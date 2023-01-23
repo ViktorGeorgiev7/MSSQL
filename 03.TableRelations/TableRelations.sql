@@ -1,0 +1,143 @@
+--1.One-To-One Relationship
+CREATE TABLE Persons
+(Id INT PRIMARY KEY IDENTITY NOT NULL,
+FirstName NVARCHAR(30) NOT NULL,
+Salary DECIMAL(18,2),
+PassportId INT
+)
+
+CREATE TABLE Passports
+(
+Id INT PRIMARY KEY IDENTITY NOT NULL,
+PassportNumber NVARCHAR(8) NOT NULL
+) 
+ALTER TABLE Persons ADD FOREIGN KEY (PassportId) REFERENCES Passports(Id)
+INSERT INTO  Persons VALUES 
+('Roberto',43000,3),
+('Yana',56100,2),
+('Tom',60200,1)
+INSERT INTO  Passports VALUES 
+('N34FG21B'),
+('ZE657QP2'),
+('K65LO4R7')
+SELECT * FROM Persons
+--2.One-To-Many Relationship
+CREATE TABLE Models 
+(Id INT PRIMARY KEY IDENTITY(101,1) NOT NULL,
+[Name] NVARCHAR(100) NOT NULL,
+ManufacturerID INT NOT NULL
+)
+CREATE TABLE Manufacturers
+(
+Id INT PRIMARY KEY IDENTITY(1,1) NOT NULL,
+[Name] NVARCHAR(100) NOT NULL,
+EstablishedOn Date NOT NULL
+)
+ALTER TABLE Models ADD FOREIGN KEY (ManufacturerID) REFERENCES Manufacturers(Id)
+ALTER TABLE Models ADD FOREIGN KEY (Id) REFERENCES Manufacturers(Id)
+--3.Many-To-Many Relationship
+CREATE TABLE Students
+(
+StudentID INT PRIMARY KEY IDENTITY NOT NULL,
+[Name] NVARCHAR(30) NOT NULL
+)
+CREATE TABLE Exams
+(
+ExamID INT PRIMARY KEY IDENTITY(101,1) NOT NULL,
+[Name] NVARCHAR(30) NOT NULL
+)
+CREATE TABLE StudentsExams
+(
+StudentID INT NOT NULL,
+ExamID INT NOT NULL
+)
+ALTER TABLE StudentsExams
+    ADD CONSTRAINT pk_CompositeKey PRIMARY KEY (StudentID,ExamID)
+ALTER TABLE StudentsExams ADD FOREIGN KEY (StudentID) REFERENCES Students(StudentID)
+ALTER TABLE StudentsExams ADD FOREIGN KEY (ExamID) REFERENCES Exams(ExamID)
+--4.Self-Referencing 
+CREATE TABLE Teachers
+(
+TeacherID INT PRIMARY KEY IDENTITY NOT NULL,
+[Name]  NVARCHAR(30) NOT NULL,
+ManagerID INT REFERENCES Teachers(TeacherID)
+)
+--5.Online Store Database
+CREATE TABLE OrderItems
+(
+OrderId INT IDENTITY NOT NULL,
+ItemId INT NOT NULL
+)
+ALTER TABLE OrderItems
+    ADD CONSTRAINT pk_CompositeKeyItems PRIMARY KEY (OrderId,ItemId)
+CREATE TABLE Items
+(
+ItemId INT PRIMARY KEY IDENTITY NOT NULL,
+[Name] Nvarchar(30) NOT NULL,
+ItemTypeId INT NOT NULL
+)
+CREATE TABLE ItemTypes
+(
+ItemTypeId INT PRIMARY KEY IDENTITY NOT NULL,
+[Name] Nvarchar(30) NOT NULL
+)
+ALTER TABLE OrderItems ADD FOREIGN KEY (ItemId) REFERENCES Items(ItemId)
+ALTER TABLE Items ADD FOREIGN KEY (ItemTypeId) REFERENCES ItemTypes(ItemTypeId)
+
+CREATE TABLE Orders
+(
+OrderId INT PRIMARY KEY IDENTITY NOT NULL,
+CustomerId INT NOT NULL
+)
+CREATE TABLE Customers
+(
+CustomerId INT PRIMARY KEY IDENTITY NOT NULL,
+[Name] Nvarchar(30) NOT NULL,
+Birthday DATE NOT NULL,
+CityId INT NOT NULL
+)
+CREATE TABLE Cities
+(
+CityId INT PRIMARY KEY IDENTITY NOT NULL,
+[Name] Nvarchar(30) NOT NULL
+)
+ALTER TABLE OrderItems ADD FOREIGN KEY (OrderId) REFERENCES Orders(OrderId)
+ALTER TABLE Orders ADD FOREIGN KEY (CustomerId) REFERENCES Customers(CustomerId)
+ALTER TABLE Customers ADD FOREIGN KEY (CityId) REFERENCES Cities(CityId)
+--6.University Database
+CREATE TABLE Majors
+(
+MajorId INT PRIMARY KEY IDENTITY NOT NULL,
+[Name] NVARCHAR(30),
+)
+CREATE TABLE Students
+(
+StudentId INT PRIMARY KEY IDENTITY NOT NULL,
+StudentNumber INT NOT NULL,
+StudentName NVARCHAR(30),
+MajorId INT REFERENCES Majors(MajorId)
+)
+CREATE TABLE Payments
+(
+PaymentId INT PRIMARY KEY IDENTITY NOT NULL,
+PaymentDate DATE NOT NULL,
+PaymentAmount DECIMAL(18,2) NOT NULL,
+StudentId INT REFERENCES Students(StudentId)
+)
+CREATE TABLE Agenda
+(
+StudentId INT NOT NULL,
+SubjectId INT NOT NULL
+)
+ALTER TABLE Agenda ADD CONSTRAINT pk_CompositeKeyAgendas PRIMARY KEY (StudentId,SubjectId)
+CREATE TABLE Subjects
+(
+SubjectId INT PRIMARY KEY IDENTITY NOT NULL,
+SubjectName NVARCHAR(30) NOT NULL
+)
+ALTER TABLE Agenda ADD FOREIGN KEY (SubjectId) REFERENCES Subjects(SubjectId)
+ALTER TABLE Agenda ADD FOREIGN KEY (StudentId) REFERENCES Students(StudentId)
+--9.*Peaks in Rila
+SELECT(SELECT MountainRange FROM Mountains WHERE MountainRange = 'Rila')
+AS [MountainRange],PeakName,Elevation From Peaks WHERE MountainId = (Select Id FROM Mountains WHERE MountainRange='Rila')
+ORDER BY Elevation DESC
